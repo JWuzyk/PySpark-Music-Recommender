@@ -19,10 +19,11 @@ from pyspark.mllib.recommendation import ALS, MatrixFactorizationModel, Rating
 def train_model(dataset_loc = 'spotify_dataset.csv', model_loc = "CollaborativeFilterModel", max_len = int(1e4)):
 
     max_len = max_len
-    csv_name = dataset_loc
+
     #Start Spark session
+    csv_name = dataset_loc
     os.environ['JAVA_HOME'] = r"C:\Program Files\Java\jdk-15.0.1" 
-    spark = SparkSession.builder.master('local[*]').appName("Reccomender").getOrCreate()
+    spark = SparkSession.builder.master('local[*]').appName("Recommender").getOrCreate()
 
     #Read Data
     df = spark.read.option("header", "true").schema('user string, artist string, track string, playlist string').csv(csv_name).limit(max_len)
@@ -85,19 +86,13 @@ def train_model(dataset_loc = 'spotify_dataset.csv', model_loc = "CollaborativeF
     MSE = ratesAndPreds.map(lambda r: (r[1][0] - r[1][1])**2).mean()
     print("Mean Squared Error = " + str(MSE))
 
-    pred = model.recommendProductsForUsers(5).map(lambda x: (x[0],x[1][0][1],x[1][1][1],x[1][2][1],x[1][3][1],x[1][4][1])).collect()
-
-    pred = [[id_to_name[i] for i in p] for p in pred]
-    print(pred)
+    return model
 
 
-    with open('pred.json', 'w') as f:
-        json.dump({'pred':pred}, f)
+    # Save model
+    # model.save(spark.sparkContext,model_loc)
 
-    #Save model
-    #model.save(spark.sparkContext,model_loc)
-
-def reccomend(rec_id,model_loc,num_rec=5):
+def recommend(rec_id,model_loc,num_rec=5):
     with open('id_to_name.json', 'rb') as f:
         id_to_name = json.load(f)
 
@@ -116,5 +111,15 @@ def reccomend(rec_id,model_loc,num_rec=5):
     print([id_to_name[str(pred[i][1])] for i in range(num_rec)])
 
 
-train_model()
+if __name__ == "__main__":
+    model = train_model()
+
+    pred = model.recommendProductsForUsers(5).map(lambda x: (x[0],x[1][0][1],x[1][1][1],x[1][2][1],x[1][3][1],x[1][4][1])).collect()
+    pred = [[id_to_name[i] for i in p] for p in pred]
+    print(pred)
+
+
+    with open('pred.json', 'w') as f:
+        json.dump({'pred':pred}, f)
+
 #reccomend(100,"CollaborativeFilterModel")

@@ -4,73 +4,48 @@ import json
 import pickle
 import os
 
-from pyspark.mllib.recommendation import ALS, MatrixFactorizationModel, Rating
-from pyspark.sql import SparkSession
 app = Flask(__name__)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pred.db'
-# db = SQLAlchemy(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///reccomendations.db'
+db = SQLAlchemy(app)
 
+print('db')
+print(db.Model.metadata.tables)
+print('db')
 
-# class Reccomendations(db.Model):
-# 	track_id = db.Column(db.Integer(), primary_key = True)
-# 	artist = db.Column(db.String(100), nullable = False)
-# 	track_name = db.Column(db.String(100), nullable = False)
-# 	r1 = db.Column(db.Integer(), nullable = False)
-# 	r2 = db.Column(db.Integer(), nullable = False)
-# 	r3 = db.Column(db.Integer(), nullable = False)
-# 	r4 = db.Column(db.Integer(), nullable = False)
-# 	r5 = db.Column(db.Integer(), nullable = False)
+class Reccomendations(db.Model):
+    __tablename__ = 'top_five'
+    track_id = db.Column(db.Integer(), primary_key = True)
+    track = db.Column(db.String(100), nullable = False)
+    rec_1 = db.Column(db.String(100), nullable = False)
+    rec_2 = db.Column(db.String(100), nullable = False)
+    rec_3 = db.Column(db.String(100), nullable = False)
+    rec_4 = db.Column(db.String(100), nullable = False)
+    rec_5 = db.Column(db.String(100), nullable = False)
 
-# 	def __repr__():
-# 		return f'Track: {self.track_id}: {self.track_name} by {self.artist} '
-
-# presistent = 0
-
-# @app.route('/test', methods = ['GET','POST'])
-# def test():
-#     global presistent
-#     presistent += 1
-#     return str(presistent)
+    def __repr__(self):
+    	return f'If you like {self.track} you should listen to  {self.rec_1}'
 
 with open('name_to_id.json', 'rb') as d:
     name_to_id = json.load(d)
-
-with open('id_to_name.json', 'rb') as d:
-    id_to_name = json.load(d)
+    id_to_name = {v:k for k,v in name_to_id.items()}
 
 with open('meta.json', 'rb') as f:
     meta = json.load(f)
 
- 
-os.environ['JAVA_HOME'] = r"C:\Program Files\Java\jdk-15.0.1"    
-spark = SparkSession.builder..master('local[*]').appName("Reccomender").getOrCreate()
-sc = spark.sparkContext
 
-model_loc = "CollaborativeFilterModel"
-model = MatrixFactorizationModel.load(sc,model_loc)
-
-model.userFeatures().cache()
-model.productFeatures().cache()
-
-num_playlists = meta['num_playlists']
-
-
-def predict(rec_id,num_rec=5):
-    pred = model.recommendProducts(num_playlists+rec_id,num_rec)
+def predict(rec_id):
+    Reccomendations.query.filter_by(track_id=rec_id).first()
     return pred
 
 @app.route('/', methods = ['GET','POST'])
-def hello_world(invalid = False):
+def enter_rec(invalid = False):
 
     if request.method == 'POST':
         artist = request.form['artist']
         track_name = request.form['track']
-
-
-
-        full_name = artist + track_name
-
+        full_name = artist +'-'+ track_name
+        print(full_name)
         if full_name  in name_to_id:
             idx = name_to_id[full_name]
             return redirect(f'/reccomendation/{idx}')
@@ -84,22 +59,12 @@ def hello_world(invalid = False):
 
 @app.route('/reccomendation/<int:id>')
 def get_rec_page(id):
-    #rec = Reccomendations.query.get_or_404(id)
-    #if rec:
-    #    return render_template('result.html', rec = rec)        
-    # else
-    #     #load model
-    #     #model.predict(...)
-    #     #Add to db
-    #     return render_template('result.html', rec = 'In progress')
-    
-    pred = [id_to_name[str(p[1])] for p in predict(id)]
-    return str(pred)
+    try:
+        rec = Reccomendations.query.get_or_404(id)
+        return render_template('result.html', rec = rec)
+    except:
+        return f"Not Found {id}"
     
 
 if __name__ == '__main__':
 	app.run(debug = True)
-
-
-    # predict
-    # cache

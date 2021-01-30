@@ -1,0 +1,42 @@
+
+<!--https://dev.to/brunooliveira/flask-series-part-6-improving-user-input-with-autocomplete-4e06-->
+
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+
+{% if invalid %}
+Invalid Input
+
+{% endif %}
+
+<form method="POST" autocomplete="off">
+        Artist: <input id="artist" type='text' name='artist'
+               placeholder='enter artist name'/>
+
+        Track: <input id="track" type='text' name='track'
+               placeholder='enter track name'/>
+
+        <input type="submit" name="get_rec" value = 'get_rec'>
+</form>
+
+For example try: UNKLE - Lonely Soul
+</body>
+</html>
+
+<!--
+    <div class='col-xs-12 col-sm-12 col-md-10 col-lg-10'>
+        <div class='input-group'>
+            <input id="autocomplete" class='form-control' type='text' name='restaurant_name'
+                   placeholder='Enter ingredients separated by commas...'/>
+            <span class="input-group-btn">
+              <button id="searchBtn" type='submit' class='btn btn-default'>
+                <span class='glyphicon glyphicon-search'></span>
+              </button>
+            </span>
+
+        </div>
+    </div>
+    -->

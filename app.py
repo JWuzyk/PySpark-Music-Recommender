@@ -9,29 +9,17 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///reccomendations.db'
 db = SQLAlchemy(app)
 
-print('db')
-print(db.Model.metadata.tables)
-print('db')
-
 class Reccomendations(db.Model):
-    __tablename__ = 'top_five'
+    __tablename__ = 'top_one'
     track_id = db.Column(db.Integer(), primary_key = True)
     track = db.Column(db.String(100), nullable = False)
-    rec_1 = db.Column(db.String(100), nullable = False)
-    rec_2 = db.Column(db.String(100), nullable = False)
-    rec_3 = db.Column(db.String(100), nullable = False)
-    rec_4 = db.Column(db.String(100), nullable = False)
-    rec_5 = db.Column(db.String(100), nullable = False)
-
+    rec = db.Column(db.String(100), nullable = False)
     def __repr__(self):
-    	return f'If you like {self.track} you should listen to  {self.rec_1}'
+    	return f'If you like {self.track} you should listen to  {self.rec}'
 
 with open('name_to_id.json', 'rb') as d:
     name_to_id = json.load(d)
     id_to_name = {v:k for k,v in name_to_id.items()}
-
-with open('meta.json', 'rb') as f:
-    meta = json.load(f)
 
 
 def predict(rec_id):
@@ -67,4 +55,4 @@ def get_rec_page(id):
     
 
 if __name__ == '__main__':
-	app.run(debug = True)
+	app.run(debug = True, host='0.0.0.0')

@@ -4,39 +4,54 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+<title>
+  Song Recommender
+</title>
+
+<h1>
+  Song Recommender
+</h1>
 </head>
+
 <body>
+
+Enter the name of a song you like to generate recommendations. Note this app only has a limited library of songs so many songs may not work. As an example try Elvis Costello - Alison.
+
+<br><br>
 
 {% if invalid %}
 Invalid Input
-
+<br>
 {% endif %}
 
 <form method="POST" autocomplete="off">
         Artist: <input id="artist" type='text' name='artist'
                placeholder='enter artist name'/>
-
+        <br>
         Track: <input id="track" type='text' name='track'
                placeholder='enter track name'/>
+        <br>
 
-        <input type="submit" name="get_rec" value = 'get_rec'>
+        <input type="submit" name="get_rec" value = 'Recommend Songs'>
+        <br>
+        <input type="submit" name="rand" value = 'Get Random Recommendation'>
+        <br>
+        Include results by the same artist:
+        <input type="checkbox" name="same_artist" value = 'allow'/>
+
 </form>
 
-For example try: UNKLE - Lonely Soul
+<hr>
+  {% if len >0 %}
+      Since you like {{searched[1]}} by  {{searched[0]}} you might like:
+  {% endif %}
+
+<br><br>
+
+{%for i in range(0, len)%} 
+    <li>{{recs[i][1]}} by  {{recs[i][0]}}</li> 
+{%endfor%} 
+
 </body>
 </html>
-
-<!--
-    <div class='col-xs-12 col-sm-12 col-md-10 col-lg-10'>
-        <div class='input-group'>
-            <input id="autocomplete" class='form-control' type='text' name='restaurant_name'
-                   placeholder='Enter ingredients separated by commas...'/>
-            <span class="input-group-btn">
-              <button id="searchBtn" type='submit' class='btn btn-default'>
-                <span class='glyphicon glyphicon-search'></span>
-              </button>
-            </span>
-
-        </div>
-    </div>
-    -->
